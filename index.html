@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>📂 Scoperty - CSV 📂</title>
+    <style>
+      body {
+        display: flex;
+        margin: auto auto;
+        flex-direction: column;
+        padding: 2%;
+        font-family: Roboto, sans-serif;
+      }
+
+      input {
+        cursor: pointer;
+      }
+
+      header#fileUploadSection {
+        border-bottom: 1px solid black;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      }
+
+      div#rawDisplay,
+      div#sanitizedDisplay {
+        border: 1px solid black;
+        padding: 2%;
+        width: 50%;
+        border-radius: 5px;
+        text-align: center;
+        box-shadow: 1px 1px 1px black;
+        overflow-x: scroll;
+        overflow-y: scroll;
+        max-height: 20%;
+      }
+
+      div#warningMessage {
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="fileUploadSection">
+      <form>
+        <label
+          >Upload CSV:
+          <input type="file" id="fileUpload" name="filename" />
+        </label>
+      </form>
+      <div id="warningMessage">
+        [Please Upload a CSV File/Bitte laden Sie eine CSV-Datei hoch]
+      </div>
+    </header>
+    <section id="contentRawDisplaySection">
+      <label>Raw/Roh</label>
+      <div id="rawDisplay"></div>
+    </section>
+    <hr />
+    <section id="contentSanitizedDisplaySection">
+      <label>Sanitized/Desinfiziert</label>
+      <div id="sanitizedDisplay"></div>
+    </section>
+    <script>
+      // Ensure content has loaded before accessing elements
+      document.addEventListener('DOMContentLoaded', () => {
+        // Init warning message and ensure hidden
+        const warningMessageDiv = document.getElementById('warningMessage');
+        warningMessageDiv.style.display = 'none';
+
+        // Init file input listener
+        const fileUpload = document.querySelectorAll("input[type='file']");
+        fileUpload[0].addEventListener('change', e => {
+          // Clear boxes on initial file change
+          document.getElementById('rawDisplay').innerText = '';
+          document.getElementById('sanitizedDisplay').innerText = '';
+
+          const file = fileUpload[0].files[0];
+          if (file.type === 'text/csv') {
+            readFile(file);
+            warningMessageDiv.style.display = 'none';
+          } else {
+            // Warning display and console log error
+            logError(
+              'Please Upload a CSV File/Bitte laden Sie eine CSV - Datei hoch'
+            );
+            warningMessageDiv.style.display = 'block';
+            warningMessageDiv.style.color = 'orangered';
+          }
+        });
+      });
+
+      // Begin parsing file for display and sanitization
+      function readFile(file) {
+        const reader = new FileReader();
+
+        reader.readAsText(file);
+
+        reader.onload = e => {
+          const csvAsText = e.target.result;
+          sanitizeCsv(csvAsText);
+          document.getElementById('rawDisplay').innerText = csvAsText;
+        };
+      }
+
+      // Remove "bad" values from input file text
+      function sanitizeCsv(raw) {
+        const sanitized = raw.replaceAll('0,', '').replaceAll(',0', '');
+        document.getElementById('sanitizedDisplay').innerText = sanitized;
+      }
+
+      // Helper to display error message in console
+      function logError(msg) {
+        console.log(
+          '%c' + ' ' + msg + ' ',
+          'background: orangered;color: black;font-weight: bolder;font-family: monospace;font-size:16px;border-radius: 5px;'
+        );
+      }
+    </script>
+  </body>
+</html>
